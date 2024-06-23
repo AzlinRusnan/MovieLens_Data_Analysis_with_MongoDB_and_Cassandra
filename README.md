@@ -14,7 +14,15 @@ The main objectives of this analysis are:
 4. Find all the users with age less than 20 years old.
 5. Find all the users who have the occupation "scientist" and are between 30 and 40 years old.
 
-## Data Parsing and Loading
-The data is parsed from the raw files and loaded into respective databases for analysis:
-- **u.user** file is loaded into Cassandra.
-- **u.data** (ratings) and **u.item** (movies) files are loaded into MongoDB.
+## Python Script Elements
+
+### 1. Python Libraries Used
+The following Python libraries are used to execute Spark, MongoDB, and Cassandra sessions:
+```python
+from pyspark.sql import SparkSession
+from pyspark.sql import Row
+from pyspark.sql import functions as F
+```
+
+### 2. Functions to Parse the u.data, u.item, and u.user Files
+Functions to parse the u.data, u.item, and u.user files and load them into HDFS:
