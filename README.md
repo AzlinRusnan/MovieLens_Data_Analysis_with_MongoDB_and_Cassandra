@@ -192,7 +192,7 @@ Cassandra:
         .limit(10)
     top_ten_movies.show()
 ```
->![2](images/2.png)
+>![2](images/2new.png)
 
 ### iii) Find the users who have rated at least 50 movies and identify their favourite movie genres
 
@@ -201,37 +201,6 @@ For question 3, we divide the code to two parts:
 - First part showing top 10 users who have rated at least 50 movies.
 
 ```python
-from pyspark.sql import SparkSession
-from pyspark.sql import Row
-from pyspark.sql.functions import col, count
-
-def parseRatingInput(line):
-    fields = line.split('\t')
-    return Row(user_id=int(fields[0]), movie_id=int(fields[1]), rating=int(fields[2]), timestamp=int(fields[3]))
-
-if __name__ == "__main__":
-    # Initialize Spark session with MongoDB configuration
-    spark = SparkSession.builder \
-        .appName("MongoIntegration") \
-        .config("spark.mongodb.output.uri", "mongodb://127.0.0.1/movielens.ratings") \
-        .config("spark.mongodb.input.uri", "mongodb://127.0.0.1/movielens.ratings") \
-        .getOrCreate()
-
-    # Load and parse the ratings data
-    rating_lines = spark.sparkContext.textFile("hdfs:///user/maria_dev/azlin/u.data")
-    ratings = rating_lines.map(parseRatingInput)
-    ratingsDF = spark.createDataFrame(ratings)
-
-    # Write DataFrames into MongoDB
-    ratingsDF.write.format("com.mongodb.spark.sql.DefaultSource") \
-        .mode('append').save()
-
-    # Read DataFrames back from MongoDB
-    ratingsDF = spark.read.format("com.mongodb.spark.sql.DefaultSource") \
-        .load()
-
-    # Create Temp Views for SQL queries
-    ratingsDF.createOrReplaceTempView("ratings")
 
     # Count the number of ratings per user
     user_ratings_count = ratingsDF.groupBy("user_id").agg(count("movie_id").alias("movie_count"))
