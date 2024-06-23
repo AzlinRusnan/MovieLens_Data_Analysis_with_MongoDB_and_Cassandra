@@ -164,6 +164,7 @@ i) Calculate the average rating for each movie.
     """)
     avg_ratings.show(10)
 ```
+![1](images/1.png)
 
 ii) Identify the top ten movies with the highest average ratings.
 ```python
@@ -174,6 +175,7 @@ ii) Identify the top ten movies with the highest average ratings.
         .limit(10)
     top_ten_movies.show()
 ```
+![2](images/2.png)
 
 iii) Find the users who have rated at least 50 movies and identify their favourite movie genres
 ```python
@@ -186,13 +188,21 @@ iii) Find the users who have rated at least 50 movies and identify their favouri
     """)
     users_50_ratings.createOrReplaceTempView("users_50_ratings")
 
+    # Explode genres and create a new DataFrame
+    exploded_movies = moviesDF.withColumn("genre", F.explode("genres"))
+    exploded_movies.createOrReplaceTempView("exploded_movies")
+
     favorite_genres = spark.sql("""
-        SELECT u.user_id, m.genres, COUNT(m.movie_id) as genre_count
+        SELECT u.user_id, e.genre, COUNT(e.movie_id) as genre_count
         FROM users_50_ratings u
         JOIN ratings r ON u.user_id = r.user_id
-        JOIN movies m ON r.movie_id = m.movie_id
-        GROUP BY u.user_id, m.genres
+        JOIN exploded_movies e ON r.movie_id = e.movie_id
+        GROUP BY u.user_id, e.genre
         ORDER BY u.user_id, genre_count DESC
     """)
     favorite_genres.show(10)
+
+    # Stop the session
+    spark.stop()
 ```
+![3](images/3.png)
