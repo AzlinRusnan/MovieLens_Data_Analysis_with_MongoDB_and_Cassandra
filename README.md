@@ -1,12 +1,12 @@
 # <div align="center"> MovieLens Analysis with MongoDB and Cassandra 🎥</div>
 
-## <div align="center">![Intro](images/muvielens.png)
+<div align="center"><img src="images/muvielens.png" alt="Intro" /></div>
 
 ## Introduction
 
 This project presents an analysis of the MovieLens 100k dataset using Apache Spark integrated with MongoDB and Cassandra. The dataset includes user information, movie ratings, and movie details, providing a comprehensive basis for exploring user preferences and movie popularity.
 
-## Objectives
+## Objectives 🎯
 The main objectives of this analysis are:
 1. Calculate the average rating for each movie.
 2. Identify the top ten movies with the highest average ratings.
@@ -14,7 +14,7 @@ The main objectives of this analysis are:
 4. Find all the users with age less than 20 years old.
 5. Find all the users who have the occupation "scientist" and are between 30 and 40 years old.
 
-## Methodology
+## Methodology 🛠️
 
 Tools and Technologies
 
@@ -23,7 +23,7 @@ Tools and Technologies
 - **Cassandra**: For storing and querying user data.
 - **HDFS**: For storing the raw input files.
 
-## Data Parsing and Loading
+## Data Parsing and Loading 📂
 
 The data from the MovieLens dataset is parsed and loaded into HDFS. Three key files are used:
 
@@ -31,7 +31,7 @@ The data from the MovieLens dataset is parsed and loaded into HDFS. Three key fi
 2. **u.data**: Contains movie ratings by users.
 3. **u.item**: Contains movie information.
 
-## Coding Information
+## Coding Information 📝
 
 I have answered the following questions using different databases:
 
@@ -167,11 +167,11 @@ Cassandra:
 
 ```
 
-## Questions and Outputs
+## Questions and Outputs 💡
 
 ### MongoDB Analysis:
 
-### **i) Calculate the average rating for each movie.**
+### i) Calculate the average rating for each movie.
 ```python
     # Question (i): Calculate the average rating for each movie
     avg_ratings = spark.sql("""
@@ -183,7 +183,7 @@ Cassandra:
 ```
 >![1](images/1.png)
 
-### **ii) Identify the top ten movies with the highest average ratings.**
+### ii) Identify the top ten movies with the highest average ratings.
 ```python
     # Question (ii): Identify the top ten movies with the highest average ratings
     top_ten_movies = avg_ratings.join(moviesDF, "movie_id")\
@@ -194,7 +194,7 @@ Cassandra:
 ```
 >![2](images/2.png)
 
-### **iii) Find the users who have rated at least 50 movies and identify their favourite movie genres**
+### iii) Find the users who have rated at least 50 movies and identify their favourite movie genres
 
 For question 3, we divide the code to two parts:
 
@@ -287,7 +287,7 @@ if __name__ == "__main__":
 
 ### Cassandra Analysis:
 
-### **iv) Find all the users with age that is less than 20 years old.**
+### iv) Find all the users with age that is less than 20 years old.
 ```python
     # Question (iv): Find all users with age < 20
     sqlDF = spark.sql("SELECT * FROM users WHERE age < 20 LIMIT 10")
@@ -295,7 +295,7 @@ if __name__ == "__main__":
 ```
 >![4](images/4.png)
 
-### **v) Find all the users who have the occupation “scientist” and their age is between 30 and 40 years old.**
+### v) Find all the users who have the occupation “scientist” and their age is between 30 and 40 years old.
 ```python
     # Question (v): Find all users with occupation 'scientist' and age between 30 and 40
     scientistDF = spark.sql("SELECT * FROM users WHERE occupation = 'scientist' AND age BETWEEN 30 AND 40 LIMIT 10")
@@ -305,12 +305,12 @@ if __name__ == "__main__":
 ```
 >![4](images/5.png)
 
-## Conclusion
+## Conclusion 📊
 This analysis demonstrates the power of integrating Apache Spark with MongoDB and Cassandra to handle and analyze large datasets. The results offer valuable insights into movie ratings and user preferences, showcasing the potential for further exploration and more complex queries.
 
 # <div align="center">Enjoy 👍</div>
 
-### **Appendix**
+### **Appendix 📑**
 
 ### **MongoDB**
 
