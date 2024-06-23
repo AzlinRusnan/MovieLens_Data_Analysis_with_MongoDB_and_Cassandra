@@ -22,7 +22,7 @@ I have answered the following questions using different databases:
 
 - Questions iv and v: Cassandra (our gossiper)
 
-Hence, you will see the coding divided into two sections: MongoDB and Cassandra. The full code for both databases will be included in the index section.
+Hence, you will see the coding divided into two sections: MongoDB and Cassandra. The full code for both databases will be included in the appendix section.
 
 ## Python 🐍 Script Elements
 
@@ -152,9 +152,9 @@ Cassandra:
 
 ## Questions and Answers
 
-### MongoDB Analysis
+### MongoDB Analysis:
 
-i) Calculate the average rating for each movie.
+**i) Calculate the average rating for each movie.**
 ```python
     # Question (i): Calculate the average rating for each movie
     avg_ratings = spark.sql("""
@@ -164,9 +164,9 @@ i) Calculate the average rating for each movie.
     """)
     avg_ratings.show(10)
 ```
-![1](images/1.png)
+>![1](images/1.png)
 
-ii) Identify the top ten movies with the highest average ratings.
+**ii) Identify the top ten movies with the highest average ratings.**
 ```python
     # Question (ii): Identify the top ten movies with the highest average ratings
     top_ten_movies = avg_ratings.join(moviesDF, "movie_id")\
@@ -175,9 +175,9 @@ ii) Identify the top ten movies with the highest average ratings.
         .limit(10)
     top_ten_movies.show()
 ```
-![2](images/2.png)
+>![2](images/2.png)
 
-iii) Find the users who have rated at least 50 movies and identify their favourite movie genres
+**iii) Find the users who have rated at least 50 movies and identify their favourite movie genres**
 ```python
     # Question (iii): Find the users who have rated at least 50 movies and identify their favorite movie genres
     users_50_ratings = spark.sql("""
@@ -205,4 +205,178 @@ iii) Find the users who have rated at least 50 movies and identify their favouri
     # Stop the session
     spark.stop()
 ```
-![3](images/3.png)
+>![3](images/3.png)
+
+### Cassandra Analysis:
+
+**iv) Find all the users with age that is less than 20 years old.**
+```python
+    # Question (iv): Find all users with age < 20
+    sqlDF = spark.sql("SELECT * FROM users WHERE age < 20 LIMIT 10")
+    sqlDF.show()
+```
+>![4](images/4.png)
+
+**v) Find all the users who have the occupation “scientist” and their age is between 30 and 40 years old.**
+```python
+    # Question (v): Find all users with occupation 'scientist' and age between 30 and 40
+    scientistDF = spark.sql("SELECT * FROM users WHERE occupation = 'scientist' AND age BETWEEN 30 AND 40 LIMIT 10")
+    scientistDF.show()
+
+    spark.stop()
+```
+>![4](images/5.png)
+
+## Conclusion
+This analysis demonstrates the power of integrating Apache Spark with MongoDB and Cassandra to handle and analyze large datasets. The results offer valuable insights into movie ratings and user preferences, showcasing the potential for further exploration and more complex queries.
+
+# <div align="center">Enjoy 👍</div>
+
+### **Appendix**
+
+**MongoDB**
+```python
+from pyspark.sql import SparkSession
+from pyspark.sql import Row
+from pyspark.sql import functions as F
+
+def parseUserInput(line):
+    fields = line.split('|')
+    return Row(user_id=int(fields[0]), age=int(fields[1]), gender=fields[2], occupation=fields[3], zip=fields[4])
+
+def parseRatingInput(line):
+    fields = line.split('\t')
+    return Row(user_id=int(fields[0]), movie_id=int(fields[1]), rating=int(fields[2]), timestamp=int(fields[3]))
+
+
+def parseMovieInput(line):
+    fields = line.split('|')
+    return Row(movie_id=int(fields[0]), title=fields[1], genres=fields[5:])
+
+if __name__ == "__main__":
+    spark = SparkSession.builder.appName("MongoIntegration").getOrCreate()
+    
+    # Load and parse the users data
+    user_lines = spark.sparkContext.textFile("hdfs:///user/maria_dev/azlin/u.user")
+    users = user_lines.map(parseUserInput)
+    usersDF = spark.createDataFrame(users)
+
+    # Load and parse the ratings data
+    rating_lines = spark.sparkContext.textFile("hdfs:///user/maria_dev/azlin/u.data")
+    ratings = rating_lines.map(parseRatingInput)
+    ratingsDF = spark.createDataFrame(ratings)
+
+    # Load and parse the movies data
+    movie_lines = spark.sparkContext.textFile("hdfs:///user/maria_dev/azlin/u.item")
+    movies = movie_lines.map(parseMovieInput)
+    moviesDF = spark.createDataFrame(movies)
+    
+    # Write DataFrames into MongoDB
+    usersDF.write.format("com.mongodb.spark.sql.DefaultSource")\
+        .option("uri", "mongodb://127.0.0.1/movielens.users").mode('append').save()
+    ratingsDF.write.format("com.mongodb.spark.sql.DefaultSource")\
+        .option("uri", "mongodb://127.0.0.1/movielens.ratings").mode('append').save()
+    moviesDF.write.format("com.mongodb.spark.sql.DefaultSource")\
+        .option("uri", "mongodb://127.0.0.1/movielens.movies").mode('append').save()
+
+    # Read DataFrames back from MongoDB
+    usersDF = spark.read.format("com.mongodb.spark.sql.DefaultSource")\
+        .option("uri", "mongodb://127.0.0.1/movielens.users").load()
+    ratingsDF = spark.read.format("com.mongodb.spark.sql.DefaultSource")\
+        .option("uri", "mongodb://127.0.0.1/movielens.ratings").load()
+    moviesDF = spark.read.format("com.mongodb.spark.sql.DefaultSource")\
+        .option("uri", "mongodb://127.0.0.1/movielens.movies").load()
+    
+    # Create Temp Views for SQL queries
+    usersDF.createOrReplaceTempView("users")
+    ratingsDF.createOrReplaceTempView("ratings")
+    moviesDF.createOrReplaceTempView("movies")
+
+    # Question (i): Calculate the average rating for each movie
+    avg_ratings = spark.sql("""
+        SELECT movie_id, AVG(rating) as avg_rating
+        FROM ratings
+        GROUP BY movie_id
+    """)
+    avg_ratings.show(10)
+
+    # Question (ii): Identify the top ten movies with the highest average ratings
+    top_ten_movies = avg_ratings.join(moviesDF, "movie_id")\
+        .select("title", "avg_rating")\
+        .orderBy(F.desc("avg_rating"))\
+        .limit(10)
+    top_ten_movies.show()
+
+    # Question (iii): Find the users who have rated at least 50 movies and identify their favorite movie genres
+    users_50_ratings = spark.sql("""
+        SELECT user_id, COUNT(movie_id) as movie_count
+        FROM ratings
+        GROUP BY user_id
+        HAVING movie_count >= 50
+    """)
+    users_50_ratings.createOrReplaceTempView("users_50_ratings")
+
+    favorite_genres = spark.sql("""
+        SELECT u.user_id, m.genres, COUNT(m.movie_id) as genre_count
+        FROM users_50_ratings u
+        JOIN ratings r ON u.user_id = r.user_id
+        JOIN movies m ON r.movie_id = m.movie_id
+        GROUP BY u.user_id, m.genres
+        ORDER BY u.user_id, genre_count DESC
+    """)
+    favorite_genres.show(10)
+
+
+    # Stop the session
+    spark.stop()
+
+```
+
+**Cassandra**
+```python
+from pyspark.sql import SparkSession
+from pyspark.sql import Row
+from pyspark.sql import functions
+
+def parseInput(line):
+    fields = line.split('|')
+    return Row(user_id=int(fields[0]), age=int(fields[1]), gender=fields[2], occupation=fields[3], zip=fields[4])
+
+if __name__ == "__main__":
+    spark = SparkSession.builder.appName("CassandraIntegration")\
+        .config("spark.cassandra.connection.host", "127.0.0.1")\
+        .getOrCreate()
+    
+    # Load and parse the user data
+    lines = spark.sparkContext.textFile("hdfs:///user/maria_dev/azlin/u.user")
+    users = lines.map(parseInput)
+    usersDataset = spark.createDataFrame(users)
+
+    # Write users data into Cassandra
+    usersDataset.write\
+        .format("org.apache.spark.sql.cassandra")\
+        .mode('append')\
+        .options(table="users", keyspace="movielens")\
+        .save()
+    
+    # Read users data from Cassandra
+    readUsers = spark.read\
+        .format("org.apache.spark.sql.cassandra")\
+        .options(table="users", keyspace="movielens")\
+        .load()
+
+    readUsers.createOrRplaceTempView("users")
+
+    # Question (iv): Find all users with age < 20
+    sqlDF = spark.sql("SELECT * FROM users WHERE age < 20 LIMIT 10")
+    sqlDF.show()
+
+    # Question (v): Find all users with occupation 'scientist' and age between 30 and 40
+    scientistDF = spark.sql("SELECT * FROM users WHERE occupation = 'scientist' AND age BETWEEN 30 AND 40 LIMIT 10")
+    scientistDF.show()
+
+    spark.stop()
+
+
+
+```
