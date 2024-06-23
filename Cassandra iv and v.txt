@@ -1,0 +1,44 @@
+from pyspark.sql import SparkSession
+from pyspark.sql import Row
+from pyspark.sql import functions
+
+def parseInput(line):
+    fields = line.split('|')
+    return Row(user_id=int(fields[0]), age=int(fields[1]), gender=fields[2], occupation=fields[3], zip=fields[4])
+
+if __name__ == "__main__":
+    spark = SparkSession.builder.appName("CassandraIntegration")\
+        .config("spark.cassandra.connection.host", "127.0.0.1")\
+        .getOrCreate()
+    
+    # Load and parse the user data
+    lines = spark.sparkContext.textFile("hdfs:///user/maria_dev/azlin/u.user")
+    users = lines.map(parseInput)
+    usersDataset = spark.createDataFrame(users)
+
+    # Write users data into Cassandra
+    usersDataset.write\
+        .format("org.apache.spark.sql.cassandra")\
+        .mode('append')\
+        .options(table="users", keyspace="movielens")\
+        .save()
+    
+    # Read users data from Cassandra
+    readUsers = spark.read\
+        .format("org.apache.spark.sql.cassandra")\
+        .options(table="users", keyspace="movielens")\
+        .load()
+
+    readUsers.createOrReplaceTempView("users")
+
+    # Question (iv): Find all users with age < 20
+    sqlDF = spark.sql("SELECT * FROM users WHERE age < 20 LIMIT 10")
+    sqlDF.show()
+
+    # Question (v): Find all users with occupation 'scientist' and age between 30 and 40
+    scientistDF = spark.sql("SELECT * FROM users WHERE occupation = 'scientist' AND age BETWEEN 30 AND 40 LIMIT 10")
+    scientistDF.show()
+
+    spark.stop()
+
+

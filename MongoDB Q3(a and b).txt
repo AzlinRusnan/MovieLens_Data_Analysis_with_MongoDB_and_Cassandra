@@ -1,0 +1,72 @@
+from pyspark.sql import SparkSession
+from pyspark.sql import Row
+from pyspark.sql.functions import col, count
+
+def parseRatingInput(line):
+    fields = line.split('\t')
+    return Row(user_id=int(fields[0]), movie_id=int(fields[1]), rating=int(fields[2]), timestamp=int(fields[3]))
+
+if __name__ == "__main__":
+    # Initialize Spark session with MongoDB configuration
+    spark = SparkSession.builder \
+        .appName("MongoIntegration") \
+        .config("spark.mongodb.output.uri", "mongodb://127.0.0.1/movielens.ratings") \
+        .config("spark.mongodb.input.uri", "mongodb://127.0.0.1/movielens.ratings") \
+        .getOrCreate()
+
+    # Load and parse the ratings data
+    rating_lines = spark.sparkContext.textFile("hdfs:///user/maria_dev/azlin/u.data")
+    ratings = rating_lines.map(parseRatingInput)
+    ratingsDF = spark.createDataFrame(ratings)
+
+    # Write DataFrames into MongoDB
+    ratingsDF.write.format("com.mongodb.spark.sql.DefaultSource") \
+        .mode('append').save()
+
+    # Read DataFrames back from MongoDB
+    ratingsDF = spark.read.format("com.mongodb.spark.sql.DefaultSource") \
+        .load()
+
+    # Create Temp Views for SQL queries
+    ratingsDF.createOrReplaceTempView("ratings")
+
+    # Count the number of ratings per user
+    user_ratings_count = ratingsDF.groupBy("user_id").agg(count("movie_id").alias("movie_count"))
+
+    # Filter users who have rated at least 50 movies
+    active_users = user_ratings_count.filter(col("movie_count") >= 50)
+
+    # Show the top 10 results
+    active_users.orderBy(col("movie_count").desc()).show(10)
+
+    ## top user with his fav movie genres
+
+    # Get the top user who rated the most movies
+    top_user_id = active_users.orderBy(col("movie_count").desc()).first().user_id
+
+    # Join ratings with items to get the genre information
+    ratings_with_genres = ratingsDF.alias("r").join(itemsDF.alias("i"), col("r.movie_id") == col("i.movie_id"))
+
+    # Filter ratings for the top user
+    top_user_ratings = ratings_with_genres.filter(col("r.user_id") == top_user_id)
+
+    # Explode the genres list and count the frequency of each genre for the top user
+    top_user_genres = top_user_ratings.withColumn("genre", explode(col("i.genres")))
+    top_user_favorite_genre = top_user_genres.groupBy("genre").agg(count("genre").alias("genre_count")).orderBy(desc("genre_count")).first()
+
+    # Get top 20 movie recommendations for the top user
+    movie_ratings_avg = ratings_with_genres.groupBy("r.movie_id", "i.title").agg(avg("r.rating").alias("avg_rating"))
+    top_10_recommendations = movie_ratings_avg.orderBy(desc("avg_rating")).limit(10).collect()
+
+    # Output
+    print("Top 10 favorite movie genres for UserID {}".format(top_user_id))
+    for movie in top_10_recommendations:
+        print("Movie: {}, Average Rating: {:.2f}".format(movie['title'], movie['avg_rating']))
+
+
+# Stop the Spark session
+spark.stop()
+
+
+    # Stop the Spark session
+    spark.stop()
