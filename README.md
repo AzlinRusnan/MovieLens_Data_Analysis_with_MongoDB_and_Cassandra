@@ -14,6 +14,16 @@ The main objectives of this analysis are:
 4. Find all the users with age less than 20 years old.
 5. Find all the users who have the occupation "scientist" and are between 30 and 40 years old.
 
+## Coding Information
+
+I have answered the following questions using different databases:
+
+- Questions i, ii, and iii: MongoDB
+
+- Questions iv and v: Cassandra (our gossiper)
+
+Hence, you will see the coding divided into two sections: MongoDB and Cassandra. The full code for both databases will be included in the index section.
+
 ## Python 🐍 Script Elements
 
 ### 1. Python Libraries Used
@@ -109,7 +119,7 @@ Cassandra:
         .save()
 ```
 
-### 5. Functions to Read the Table Back from MongoDB and Cassandra into a New DataFrame
+### 6. Functions to Read the Table Back from MongoDB and Cassandra into a New DataFrame
 Read the tables back from MongoDB and Cassandra into new DataFrames:
 
 MongoDB:
@@ -138,4 +148,51 @@ Cassandra:
 
     readUsers.createOrReplaceTempView("users")
 
+```
+
+## Questions and Answers
+
+### MongoDB Analysis
+
+i) Calculate the average rating for each movie.
+```python
+    # Question (i): Calculate the average rating for each movie
+    avg_ratings = spark.sql("""
+        SELECT movie_id, AVG(rating) as avg_rating
+        FROM ratings
+        GROUP BY movie_id
+    """)
+    avg_ratings.show(10)
+```
+
+ii) Identify the top ten movies with the highest average ratings.
+```python
+    # Question (ii): Identify the top ten movies with the highest average ratings
+    top_ten_movies = avg_ratings.join(moviesDF, "movie_id")\
+        .select("title", "avg_rating")\
+        .orderBy(F.desc("avg_rating"))\
+        .limit(10)
+    top_ten_movies.show()
+```
+
+iii) Find the users who have rated at least 50 movies and identify their favourite movie genres
+```python
+    # Question (iii): Find the users who have rated at least 50 movies and identify their favorite movie genres
+    users_50_ratings = spark.sql("""
+        SELECT user_id, COUNT(movie_id) as movie_count
+        FROM ratings
+        GROUP BY user_id
+        HAVING movie_count >= 50
+    """)
+    users_50_ratings.createOrReplaceTempView("users_50_ratings")
+
+    favorite_genres = spark.sql("""
+        SELECT u.user_id, m.genres, COUNT(m.movie_id) as genre_count
+        FROM users_50_ratings u
+        JOIN ratings r ON u.user_id = r.user_id
+        JOIN movies m ON r.movie_id = m.movie_id
+        GROUP BY u.user_id, m.genres
+        ORDER BY u.user_id, genre_count DESC
+    """)
+    favorite_genres.show(10)
 ```
