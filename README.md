@@ -14,6 +14,23 @@ The main objectives of this analysis are:
 4. Find all the users with age less than 20 years old.
 5. Find all the users who have the occupation "scientist" and are between 30 and 40 years old.
 
+## Methodology
+
+Tools and Technologies
+
+- **Apache Spark**: For data processing and analysis.
+- **MongoDB**: For storing and querying movie and rating data.
+- **Cassandra**: For storing and querying user data.
+- **HDFS**: For storing the raw input files.
+
+## Data Parsing and Loading
+
+The data from the MovieLens dataset is parsed and loaded into HDFS. Three key files are used:
+
+1. **u.user**: Contains user information.
+2. **u.data**: Contains movie ratings by users.
+3. **u.item**: Contains movie information.
+
 ## Coding Information
 
 I have answered the following questions using different databases:
