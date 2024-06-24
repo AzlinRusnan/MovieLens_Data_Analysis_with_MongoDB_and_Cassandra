@@ -196,9 +196,9 @@ Cassandra:
 
 ### iii) Find the users who have rated at least 50 movies and identify their favourite movie genres
 
-For question 3, we divide the code to two parts:
+For question 3, we divide the code into two parts:
 
-- First part showing top 10 users who have rated at least 50 movies.
+- The first part shows the top 10 users who have rated at least 50 movies.
 
 ```python
 
@@ -215,9 +215,9 @@ For question 3, we divide the code to two parts:
 >
 > **Insights:**
 > 
-> The list shows the top 10 users who have rated at least 50 movies, with user ID 405 having the highest number of ratings.
+> The list shows the top 10 users who have rated at least 50 movies, with user ID 405 having the most ratings.
 
-- Second part showing the top user that rated more than 50 movies with his favorite movie genres
+- The second part shows the top user who rated more than 50 movies along with their favorite movie genres.
 
 ```python
     ## Top user with his fav movie genres
@@ -249,7 +249,7 @@ For question 3, we divide the code to two parts:
 ```
 >![3b](images/3(b).png)
 
-In order to know the exact genre that the top user love to watched, we use Import IMDbPy and create an instance to interact with IMDb. Below is the coding:
+- To determine the exact genres the top user loves to watch, we use IMDbPy and create an instance to interact with IMDb. Below is the code:
 
 ```python
 # Install the IMDbPy package
@@ -287,7 +287,7 @@ Output
 >
 > **Insights:**
 > 
-> From the list of movies rated, user ID 405 loves to watch the Drama genre.
+> From the list of movies rated, user ID 405 loves to watch the Drama genre the most.
 
 
 ### Cassandra Analysis:
