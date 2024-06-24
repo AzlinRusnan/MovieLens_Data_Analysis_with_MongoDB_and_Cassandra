@@ -212,8 +212,8 @@ For question 3, we divide the code to two parts:
     active_users.orderBy(col("movie_count").desc()).show(10)
 ```
 >![3](images/3(a).png)
-
-> Insights:
+>
+> **Insights:**
 > 
 > The list shows the top 10 users who have rated at least 50 movies, with user ID 405 having the highest number of ratings.
 
@@ -248,8 +248,44 @@ For question 3, we divide the code to two parts:
     spark.stop()
 ```
 >![3b](images/3(b).png)
+
+In order to know the exact genre that the top user love to watched, we use Import IMDbPy and create an instance to interact with IMDb. Below is the coding:
+
+```python
+# Install the IMDbPy package
+!pip install IMDbPY
+
+# Import the IMDb class from IMDbPy
+from imdb import IMDb
+
+# Create an instance of the IMDb class
+ia = IMDb()
+
+def get_movie_genres(movie_title):
+    # Search for the movie by title
+    movies = ia.search_movie(movie_title)
+    if not movies:
+        return []
+    
+    # Get the first movie result
+    movie = ia.get_movie(movies[0].movieID)
+    return movie.get('genres', [])
+
+# List of movies to get genres for
+movies = ["Star Kid", "Santa with Muscles", "Entertaining Angels: The Dorothy Day Story",
+          "Prefontaine", "Marlene Dietrich: Shadow and Light", "Aiqing wansui",
+          "Someone Else's America", "Great Day in Harlem, A", "They Made Me a Criminal",
+          "Saint of Fort Washington, The"]
+
+# Fetch and print genres for each movie
+for movie in movies:
+    genres = get_movie_genres(movie)
+    print(f"Movie: {movie}, Genres: {genres}")
+```
+Output
+>![g](images/outputgenre.png)
 >
-> Insights:
+> **Insights:**
 > 
 > From the list of movies rated, user ID 405 loves to watch the Drama genre.
 
