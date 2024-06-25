@@ -182,6 +182,12 @@ Cassandra:
     avg_ratings.show(10)
 ```
 >![1](images/1.png)
+>
+> **Insights:**
+>
+>- We calculated the average ratings for each movie. The results show a wide range of ratings, with some movies receiving high ratings and others receiving lower ratings.
+>
+>- Movies with high average ratings are generally well-liked by audiences. This information helps us understand which movies are popular and what qualities might make a movie successful.
 
 ### ii) Identify the top ten movies with the highest average ratings.
 ```python
@@ -193,6 +199,11 @@ Cassandra:
     top_ten_movies.show()
 ```
 >![2](images/2new.png)
+>
+>
+> **Insights:**
+>
+>The top ten movies with the highest average ratings span various genres, indicating that high-quality films are not limited to a specific genre. These movies include "Prefontaine (1997)", "Saint of Fort Washington, The (1993)", and "Star Kid (1997)".
 
 ### iii) Find the users who have rated at least 50 movies and identify their favourite movie genres
 
@@ -215,7 +226,7 @@ For question 3, we divide the code into two parts:
 >
 > **Insights:**
 > 
-> The list shows the top 10 users who have rated at least 50 movies, with user ID 405 having the most ratings.
+>The list shows the top 10 users who have rated at least 50 movies, with user ID 405 having the most ratings.
 
 - The second part shows the top user who rated more than 50 movies along with their favorite movie genres.
 
@@ -287,7 +298,7 @@ Output
 >
 > **Insights:**
 > 
-> From the list of movies rated, user ID 405 loves to watch the Drama genre the most.
+>From the list of movies rated, user ID 405 loves to watch the Drama genre the most.
 
 
 ### Cassandra Analysis:
@@ -299,6 +310,10 @@ Output
     sqlDF.show()
 ```
 >![4](images/4.png)
+>
+> **Insights:**
+>- The analysis of users under the age of 20 shows a significant presence of young users, predominantly students.
+>- Young users' active participation in rating movies indicates their engagement and influence on movie popularity. As digital natives, their preferences are crucial for predicting future trends in movie consumption.
 
 ### v) Find all the users who have the occupation “scientist” and their age is between 30 and 40 years old.
 ```python
@@ -309,9 +324,14 @@ Output
     spark.stop()
 ```
 >![4](images/5.png)
+>
+> **Insights:**
+>
+>- The analysis of users who are scientists aged between 30 and 40 reveals a specific professional demographic's engagement with the platform. This group includes both men and women who actively rate movies.
+>- Understanding the viewing habits of scientists aged 30-40 helps in tailoring content recommendations for a demographic that may have specific tastes and intellectual interests. This group likely appreciates scientifically accurate and intellectually stimulating content.
 
 ## Conclusion 📊
-This analysis demonstrates the power of integrating Apache Spark with MongoDB and Cassandra to handle and analyze large datasets. The results offer valuable insights into movie ratings and user preferences, showcasing the potential for further exploration and more complex queries.
+This project used Apache Spark with MongoDB and Cassandra to analyze the MovieLens 100k dataset. The analysis revealed various insights: average movie ratings, top-rated movies in different genres, genre preferences of highly engaged users, active participation by users under 20, and specific preferences of scientists aged 30-40. These findings can help improve content creation, marketing strategies, and user engagement. Future work will focus on deeper analysis, performance optimization, and using larger datasets to gain a more complete understanding of movie and user preferences. The results offer valuable insights into movie ratings and user preferences, showcasing the potential for further exploration and more complex queries.
 
 # <div align="center">Enjoy 👍</div>
 
