@@ -337,5 +337,5 @@ This project used Apache Spark with MongoDB and Cassandra to analyze the MovieLe
 
 ### **Appendix 📑**
 
-All the coding for question i, ii, iiii, iv and v, i have attached as txt file.
+All codings for question i, ii, iiii, iv and v, I have attached as txt file.
 
