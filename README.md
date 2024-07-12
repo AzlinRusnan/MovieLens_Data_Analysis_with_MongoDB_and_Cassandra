@@ -39,7 +39,7 @@ I have answered the following questions using different databases:
 
 - Questions iv and v: Cassandra (our gossiper)
 
-Hence, you will see the coding divided into two sections: MongoDB and Cassandra. The full code for both databases will be included in the appendix section.
+Hence, you will see the coding divided into two sections: MongoDB and Cassandra. The full code for both databases are included in the appendix section.
 
 ## Python 🐍 Script Elements
 
