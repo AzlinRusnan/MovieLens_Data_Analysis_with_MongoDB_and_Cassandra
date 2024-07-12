@@ -68,42 +68,5 @@ if __name__ == "__main__":
         .limit(10)
     top_ten_movies.show()
 
-    # Question (iii): Find the users who have rated at least 50 movies and identify their favorite movie genres
-    users_50_ratings = spark.sql("""
-        SELECT user_id, COUNT(movie_id) as movie_count
-        FROM ratings
-        GROUP BY user_id
-        HAVING movie_count >= 50
-    """)
-    users_50_ratings.createOrReplaceTempView("users_50_ratings")
-
-    favorite_genres = spark.sql("""
-        SELECT u.user_id, m.genres, COUNT(m.movie_id) as genre_count
-        FROM users_50_ratings u
-        JOIN ratings r ON u.user_id = r.user_id
-        JOIN movies m ON r.movie_id = m.movie_id
-        GROUP BY u.user_id, m.genres
-        ORDER BY u.user_id, genre_count DESC
-    """)
-    favorite_genres.show(10)
-
-    # Question (iv): Find all the users with age that is less than 20 years old
-    users_below_20 = spark.sql("""
-        SELECT * 
-        FROM users 
-        WHERE age < 20 
-        LIMIT 10
-    """)
-    users_below_20.show()
-
-    # Question (v): Find all the users who have the occupation "scientist" and their age is between 30 and 40 years old
-    scientists_30_40 = spark.sql("""
-        SELECT * 
-        FROM users 
-        WHERE occupation = 'scientist' AND age BETWEEN 30 AND 40 
-        LIMIT 10
-    """)
-    scientists_30_40.show()
-
     # Stop the session
     spark.stop()
