@@ -54,7 +54,7 @@ if __name__ == "__main__":
     top_user_genres = top_user_ratings.withColumn("genre", explode(col("i.genres")))
     top_user_favorite_genre = top_user_genres.groupBy("genre").agg(count("genre").alias("genre_count")).orderBy(desc("genre_count")).first()
 
-    # Get top 20 movie recommendations for the top user
+    # Get top 10 movie recommendations for the top user
     movie_ratings_avg = ratings_with_genres.groupBy("r.movie_id", "i.title").agg(avg("r.rating").alias("avg_rating"))
     top_10_recommendations = movie_ratings_avg.orderBy(desc("avg_rating")).limit(10).collect()
 
